@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!--
+ MindAR multi-target image tracking demo
+ Standalone project based on mind-ar-js example2
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MindAR Multi-Target Demo</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      .example-container {
+        overflow: hidden;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      #example-control-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 9999;
+        padding: 10px;
+        display: flex;
+        gap: 6px;
+      }
+      #example-control-overlay button {
+        padding: 8px 14px;
+        font-size: 14px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      #example-control-overlay button:hover {
+        background: #fff;
+      }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const startButton = document.querySelector("#start-button");
+        const detectAllButton = document.getElementById("detect-all-button");
+        const detect0Button = document.getElementById("detect-0-button");
+        const detect1Button = document.getElementById("detect-1-button");
+        const sceneEl = document.querySelector('a-scene');
+        let arReady = false;
+
+        function getArSystem() {
+          return sceneEl.systems["mindar-image-system"];
+        }
+
+        // 监听 AR 就绪事件，启用切换按钮
+        sceneEl.addEventListener("arReady", () => {
+          arReady = true;
+          console.log("AR is ready!");
+          detectAllButton.disabled = false;
+          detect0Button.disabled = false;
+          detect1Button.disabled = false;
+        });
+
+        detectAllButton.addEventListener("click", () => {
+          if (!arReady) return;
+          console.log("detecting all...");
+          getArSystem().switchTarget(-1);
+        });
+        detect0Button.addEventListener("click", () => {
+          if (!arReady) return;
+          console.log("detecting 0 only...");
+          getArSystem().switchTarget(0);
+        });
+        detect1Button.addEventListener("click", () => {
+          if (!arReady) return;
+          console.log("detecting 1 only...");
+          getArSystem().switchTarget(1);
+        });
+        startButton.addEventListener('click', () => {
+          console.log("starting AR...");
+          getArSystem().start();
+          startButton.disabled = true;
+          startButton.textContent = "Loading...";
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="example-control-overlay">
+      <button id="start-button">Start</button>
+      <button id="detect-all-button" disabled>Detect All</button>
+      <button id="detect-0-button" disabled>Detect 0</button>
+      <button id="detect-1-button" disabled>Detect 1</button>
+    </div>
+
+    <div class="example-container">
+      <a-scene mindar-image="imageTargetSrc: ./assets/band-example/band.mind; autoStart: false; maxTrack: 1; uiLoading: no; uiScanning: no; uiError: no" embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        <a-assets>
+          <a-asset-item id="bearModel" src="./assets/band-example/bear/scene.gltf"></a-asset-item>
+          <a-asset-item id="raccoonModel" src="./assets/band-example/raccoon/scene.gltf"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+          <a-gltf-model rotation="90 0 0" position="0 0 0" scale="0.05 0.05 0.05" src="#raccoonModel" animation-mixer>
+          </a-gltf-model>
+        </a-entity>
+        <a-entity mindar-image-target="targetIndex: 1">
+          <a-gltf-model rotation="90 0 0" position="0 0 0" scale="0.05 0.05 0.05" src="#bearModel" animation-mixer>
+          </a-gltf-model>
+        </a-entity>
+      </a-scene>
+    </div>
+  </body>
+</html>
